@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.IO;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -15,6 +16,14 @@ namespace NBAScheduleApp
         public Form1()
         {
             InitializeComponent();
+
+            cbTeams.SelectedIndexChanged += ComboBox_SelectedIndexChanged;
+            cbSeasons.SelectedIndexChanged += ComboBox_SelectedIndexChanged;
+        }
+
+        private void ComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            SaveSettings();
         }
         private async void Form1_Load(object sender, EventArgs e)
         {
@@ -28,7 +37,7 @@ namespace NBAScheduleApp
                 if (response.IsSuccessStatusCode)
                 {
                     string json = await response.Content.ReadAsStringAsync();
-                    var data = JsonConvert.DeserializeObject<TeamsResponse>(json); // Десериализация
+                    var data = JsonConvert.DeserializeObject<TeamsResponse>(json);
 
                     cbTeams.Items.Clear();
                     foreach (var team in data.Teams)
@@ -36,9 +45,13 @@ namespace NBAScheduleApp
                         cbTeams.Items.Add(team.Name);
                     }
 
-                    if (cbTeams.Items.Count > 0)
+                    LoadSettings();
+                    if (cbTeams.Items.Count > 0 && cbTeams.SelectedIndex == -1)
                     {
                         cbTeams.SelectedIndex = 0;
+                    }
+                    if (cbSeasons.Items.Count > 0 && cbSeasons.SelectedIndex == -1)
+                    {
                         cbSeasons.SelectedIndex = 0;
                     }
 
@@ -52,6 +65,49 @@ namespace NBAScheduleApp
             catch (Exception ex)
             {
                 lblStatus.Text = $"Ошибка: {ex.Message}";
+            }
+        }
+
+        private const string SettingsFileName = "nba_settings.json";
+
+        private void SaveSettings()
+        {
+            var settings = new
+            {
+                Team = cbTeams.SelectedItem?.ToString(),
+                Season = cbSeasons.SelectedItem?.ToString()
+            };
+
+            File.WriteAllText(SettingsFileName, JsonConvert.SerializeObject(settings));
+        }
+
+        private void LoadSettings()
+        {
+            if (File.Exists(SettingsFileName))
+            {
+                try
+                {
+                    var json = File.ReadAllText(SettingsFileName);
+                    var settings = JsonConvert.DeserializeObject<dynamic>(json);
+
+                    if (settings != null)
+                    {
+                        if (settings.Team != null)
+                        {
+                            var teamIndex = cbTeams.Items.IndexOf(settings.Team.ToString());
+                            if (teamIndex >= 0) cbTeams.SelectedIndex = teamIndex;
+                        }
+
+                        if (settings.Season != null)
+                        {
+                            var seasonIndex = cbSeasons.Items.IndexOf(settings.Season.ToString());
+                            if (seasonIndex >= 0) cbSeasons.SelectedIndex = seasonIndex;
+                        }
+                    }
+                }
+                catch
+                {
+                }
             }
         }
 
