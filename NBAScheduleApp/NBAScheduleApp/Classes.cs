@@ -47,4 +47,9 @@ namespace NBAScheduleApp
             public List<Match> Events { get; set; }
         }
     }
+    public class Notification
+    {
+        public string Text;
+        public string User;
+    }
 }
