@@ -54,7 +54,19 @@ namespace NBAScheduleApp
                 lblStatus.Text = $"Ошибка: {ex.Message}";
             }
         }
+       
+        private void ShowNotification(MatchNotification match)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => ShowNotification(match)));
+                return;
+            }
 
+            notifyIcon1.BalloonTipTitle = "Скоро матч!";
+            notifyIcon1.BalloonTipText = $"{match.HomeTeam.Name} vs {match.AwayTeam.Name} через 1 час";
+            notifyIcon1.ShowBalloonTip(5000);
+        }
 
 
         private async void btnLoadMatches_Click(object sender, EventArgs e)
