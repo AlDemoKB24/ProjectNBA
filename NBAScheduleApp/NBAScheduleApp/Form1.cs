@@ -31,7 +31,7 @@ namespace NBAScheduleApp
 
             try
             {
-                string teamsUrl = "https://www.thesportsdb.com/api/v1/json/123/search_all_teams.php?l=NBA";
+                string teamsUrl = "https://www.thesportsdb.com/api/v1/json/{ApiKey}/search_all_teams.php?l=NBA";
                 HttpResponseMessage response = await _client.GetAsync(teamsUrl);
 
                 if (response.IsSuccessStatusCode)
@@ -124,7 +124,7 @@ namespace NBAScheduleApp
 
             string teamName = cbTeams.SelectedItem.ToString();
             string season = cbSeasons.SelectedItem.ToString();
-            string matchesUrl = $"https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4387&s={season}";
+            string matchesUrl = $"https://www.thesportsdb.com/api/v1/json/{ApiKey}/eventsseason.php?id=4387&s={season}";
 
             lblStatus.Text = $"Загрузка матчей {teamName} за сезон {season}...";
             listViewMatches.Items.Clear();
